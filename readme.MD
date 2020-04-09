@@ -1,6 +1,6 @@
-### ITPower Project
+# ITPower Project
 ##Weather Band
-#subject: data conversion
+###subject: data conversion
 
 Since we are using LoRa to transfer data from the weather station to database, we wanted to reduce the size of the data.
 
