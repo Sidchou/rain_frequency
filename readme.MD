@@ -1,10 +1,10 @@
-# ITPower - Weather Band
-Project under ITPower
-######subject: data conversion
+# ITPower
+### Weather Band
+##### subject: data conversion
 
 
 Since we are using LoRa to transfer data from the weather station to database, we wanted to reduce the size of the data.
- 
+
 
 This repo specifically deal with reducing size of rain data, but retaining the resolution down to half a second.
 
