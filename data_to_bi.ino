@@ -17,8 +17,9 @@ const byte day = 15;
 const byte month = 6;
 const byte year = 15;
 
-unsigned int data[4] = {0,0,0,0};
+int data[30][4] = {{},{}}; 
 int i = 0;
+int j = 0;
 int millisOffset = 0;
 
 void setup()
@@ -34,13 +35,11 @@ void setup()
   //Set miilis offset
   millisOffset = millis();
  
-  // reset index
-  if (i != 0){
-  i = ceil(rtc.getSeconds()/15) - 1; 
-  }
-  //reset data
-  data[i] = 0;
-
+    // reset data
+    resetData();
+    
+     // reset index
+    resetIndex();
 
 }
 
@@ -64,43 +63,44 @@ void loop()
   Serial.println();
 
 
-  //reset every 15 second (use 32 bit)
-  if (rtc.getSeconds()%15 == 0){ 
-     int d =  pow(2,(15)*2) *(floor(rtc.getSeconds()/15) - 1) ;
-    //add time signature for first 2 bit
-    data[i] += d;
-    Serial.print(i,BIN); // print index
-    Serial.print(": "); 
-    Serial.println(data[i],BIN); // print data
-    Serial.print("int : "); 
-    Serial.println(data[i]); // print data
+  //reset every 2 min
+  if (rtc.getMinutes()%2 == 0&&rtc.getSeconds()==0){ 
+    // int d =  pow(2,(15)*2) *(floor(rtc.getSeconds()/15) - 1) ;
+    // //add time signature for first 2 bit
+    // data[j][i] += d;
+    printData();
 
-    i = rtc.getSeconds()/15; // reset index
-    data[i] = 0; // reset data
-    Serial.print("rest : "); 
-    Serial.println(data[i]); // print data
+    // reset data
+    resetData();
+    
+     // reset index
+    resetIndex();
+
+
   }
 
   //data
   if (rtc.getSeconds()%5 == 0){
-    // temp data fist half second
-    unsigned int d =  pow(2,(rtc.getSeconds()%15)*2); 
-    
-    data[i] += d;
-    // temp data second half second
-    d =  pow(2,(rtc.getSeconds()%15)*2+1);
-    
-    data[i] += d;
+    // select index
+     j = rtc.getMinutes()%2;
+     i = floor(rtc.getSeconds()/15);
+    //1 << (rtc.getSeconds()%4)*2;
+    data[j][i] += 1 << (rtc.getSeconds()%15)*2;
+
+    // temp data second half second  
+    data[j][i] += 1 << (rtc.getSeconds()%15)*2+1;
+
   }
 
 
   // log data
 //  if (rain){
+//     // calculate index
+//     j = rtc.getMinutes()%30;
+//     i = floor(rtc.getSeconds()/15);
 //    //Calculate first or second half of sec(0 or 1)
 //    int t = floor(((millis()-millisOffset)%1000)/500); 
-//    
-//    unsigned int d =  pow(2,(rtc.getSeconds()%15)*2+t); 
-//    data[i] += d;
+//    data[i] += 1 << (rtc.getSeconds()%15)*2+t;
 //    }
   
 
@@ -116,4 +116,42 @@ void print2digits(int number) {
     Serial.print("0"); // print a 0 before if the number is < than 10
   }
   Serial.print(number);
+}
+
+void resetData(){
+  
+  for (j = 0; j < 2; j++){
+      for (i = 0; i < 16; i++){
+        data[j][i] = 0;
+      }
+    }
+  }
+
+void resetIndex(){
+   i = floor(rtc.getSeconds()/4);
+   j = rtc.getMinutes()%2;
+  }
+void printData(){
+  Serial.println("data: ");
+    for (j = 1; j >= 0; j--){
+      for (i = 3; i >= 0; i--){
+        printAll(data[j][i]);
+        Serial.println("");
+      }
+      
+    }
+   Serial.println("");
+
+  }
+
+void printAll(int n) {
+  for (int bits = 31; bits > -1; bits--) {
+    // Compare bits 7-0 in byte
+    if (n & (1 << bits)) {
+      Serial.print("1");
+    }
+    else {
+      Serial.print("0");
+    }
+  }
 }
